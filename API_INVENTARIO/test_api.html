@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Test de API - Inventario</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f9; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { color: #333; }
+        button { background-color: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; }
+        pre { background-color: #eee; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        .status { margin-top: 15px; font-weight: bold; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Prueba de Conexión a API_INVENTARIO</h1>
+    <p>URL a probar (GET): <code>http://localhost/API_INVENTARIO/api.php?action=productos</code></p>
+    <button onclick="testApi()">Ejecutar Prueba</button>
+
+    <div class="status" id="statusMessage"></div>
+    
+    <h2>Respuesta JSON:</h2>
+    <pre id="apiResponse">Esperando prueba...</pre>
+</div>
+
+<script>
+    const apiUrl = 'http://localhost:8080/API_INVENTARIO/api.php?action=productos';
+    
+    async function testApi() {
+        const responsePre = document.getElementById('apiResponse');
+        const statusDiv = document.getElementById('statusMessage');
+        
+        responsePre.textContent = 'Cargando...';
+        statusDiv.textContent = 'Conectando con el servidor...';
+        statusDiv.className = 'status';
+
+        try {
+            const response = await fetch(apiUrl);
+            
+            if (!response.ok) {
+                // Manejar errores HTTP (404, 500, etc.)
+                statusDiv.textContent = `❌ Error HTTP: ${response.status} ${response.statusText}`;
+                statusDiv.className = 'status error';
+                responsePre.textContent = `No se pudo acceder a la URL. Verifique XAMPP y la ruta: ${apiUrl}`;
+                return;
+            }
+
+            const data = await response.json();
+            responsePre.textContent = JSON.stringify(data, null, 2);
+
+            if (data.success) {
+                statusDiv.textContent = '✅ Conexión exitosa y API respondió con éxito.';
+                statusDiv.className = 'status success';
+            } else {
+                statusDiv.textContent = '⚠️ API respondió, pero con un fallo lógico (success: false).';
+                statusDiv.className = 'status error';
+            }
+
+        } catch (error) {
+            // Manejar errores de red (Failed to fetch)
+            statusDiv.textContent = `❌ Error de red (Network Error): ${error.message}`;
+            statusDiv.className = 'status error';
+            responsePre.textContent = 'Asegúrese de que Apache esté corriendo y la URL sea correcta.';
+        }
+    }
+</script>
+
+</body>
+</html>
